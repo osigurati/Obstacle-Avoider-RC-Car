@@ -1,0 +1,113 @@
+// run this code on Arduino IDE
+// VISIT @ThetechHour on instagram for circuit diagram and block diagram
+int val;
+int np;
+
+int duration = 0;  //declaring variables
+int distance = 0;
+
+int distance_right = 0;
+int distance_left = 0;
+
+
+/* trig pin 4, echo pin 3 */
+
+void setup ()
+{
+  Serial.begin(9600);  
+  pinMode(9,OUTPUT);  //Setting pins as input or output
+  pinMode(10,OUTPUT);
+  pinMode(5,OUTPUT);
+  pinMode(6,INPUT);
+
+  pinMode(4, OUTPUT);
+  pinMode(3, INPUT);
+}
+
+void loop () 
+{
+    int mode;
+
+    if (Serial.available() > 0) // Detected is bluetooth connected
+    {
+      int data = Serial.read();   // reading data from bluetooth 
+        if (data == 'O')   //to change from Manual to Obsatacle Avoidance
+        {
+          mode = 2; // obstacle avoidance mode
+        }
+        else
+        {
+          mode = 1;  //Manual mode
+        }
+    }
+    if (mode == 2)  //manual mode
+    {
+      
+      digitalWrite(4, HIGH);
+      delayMicroseconds(1000);
+      digitalWrite(4,LOW);
+      duration = pulseIn(3, HIGH);
+      distance = (duration/2)/28.5; //calculating distance
+      
+
+      if (distance < 15 ) //If distance is less than 15 then turn else go straight
+      {
+        digitalWrite(9,HIGH);      
+        digitalWrite(10,LOW); 
+        digitalWrite(6,LOW);
+        digitalWrite(5,HIGH);
+      }
+
+      else                         
+      {
+        digitalWrite(9,LOW);
+        digitalWrite(10,HIGH);
+        digitalWrite(6,LOW);        
+        digitalWrite(5,HIGH);
+      }
+    }
+
+    else if (mode == 1) // manual mode
+    {
+      if (Serial.available() > 0) //detected is bluetooth connected
+      {
+        int data1 = Serial.read(); //reading data sent from bluetooth
+        
+        digitalWrite(9,LOW);
+        digitalWrite(10,LOW);
+        digitalWrite(6,LOW);
+        digitalWrite(5,LOW);
+        if (data1 == 'R') //right
+        {
+            digitalWrite(9,LOW);      
+            digitalWrite(10,HIGH);
+            digitalWrite(6,LOW);
+            digitalWrite(5,HIGH);
+        }
+  
+        else if (data1 == 'L') //left
+        {
+          digitalWrite(9,HIGH);      
+          digitalWrite(10,LOW); 
+          digitalWrite(6,HIGH);
+          digitalWrite(5,LOW);
+        }
+  
+        else if (data1 == 'B') //backwards
+        {
+            digitalWrite(9,LOW);
+            digitalWrite(10,HIGH);     
+            digitalWrite(6,HIGH);
+            digitalWrite(5,LOW);
+        }
+  
+        else if (data1 == 'F') //forward
+        {
+          digitalWrite(9,HIGH);
+          digitalWrite(10,LOW);
+          digitalWrite(6,LOW);        
+          digitalWrite(5,HIGH);
+        }
+      }
+    }
+ }
